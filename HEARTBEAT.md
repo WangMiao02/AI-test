@@ -1,7 +1,67 @@
-# HEARTBEAT.md Template
+# HEARTBEAT.md
 
-```markdown
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+主动管家任务清单。心跳到达时，按下面的规则判断是否需要主动推送。
+无事可做就回复 HEARTBEAT_OK，不要硬找事。
 
-# Add tasks below when you want the agent to check something periodically.
-```
+## 全局原则
+
+- 23:00 - 08:00 静默，除非是 weather-alert 或 reservation-reminder。
+- 任何主动推送前，先读 `memory/MEMORY.md` 中的用户偏好。
+- 推送内容尽量带：时间、地点、价格、操作（按钮或下一步建议）。
+- 同一类型 2 小时内不要重复推送。
+- 用户明确说“别打扰”就当天静默。
+
+## 周期任务
+
+### morning-briefing
+- 时间：工作日 08:00；周末 09:30
+- 内容：今日天气、日程、午餐预选 1-2 家、出行提醒
+- 跳过条件：用户已在 07:00 后主动开聊
+
+### meal-reminder
+- 时间：11:30 与 17:30
+- 内容：根据位置/偏好/天气推 2-3 家
+- 跳过条件：当顿已有预订或刚刚推送过
+
+### commute-monitor
+- 时间：工作日 07:30 与 17:30
+- 内容：路况摘要，遇拥堵给出 1 个替代方案
+- 跳过条件：周末或当日已请假
+
+### deal-alert
+- 时间：每日 10:00
+- 内容：今日限时优惠/团购（限收藏过的品牌或常去区域）
+- 跳过条件：3 天内已推过同品牌
+
+### weekend-planner
+- 时间：每周五 18:00
+- 内容：周末活动 / 展览 / 电影候选 3 条
+- 跳过条件：本周已生成过
+
+### weather-alert
+- 频率：每 3 小时（含夜间）
+- 内容：极端天气与出行调整建议
+- 跳过条件：未达预警阈值
+
+## 事件触发任务
+
+### reservation-reminder
+- 触发：预订前 2 小时
+- 内容：提醒时间、地点、注意事项
+
+### price-drop-notify
+- 触发：收藏餐厅价格下调
+- 内容：原价 / 现价 / 截止时间
+
+### event-countdown
+- 触发：预定事件前 1 天
+- 内容：明天的安排与准备物品
+
+### reorder-suggestion
+- 触发：距上次去过的某店超过 7 天
+- 内容：是否再去，附 1 个替代选项
+
+## 内务任务
+
+- 每天 02:00 整理当天 `memory/YYYY-MM-DD.md` 的关键事实进 `memory/MEMORY.md`
+- 每周日 03:00 清理 `memory/` 中超过 90 天的原始日记
